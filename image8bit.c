@@ -166,22 +166,31 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
   assert(height >= 0);
   assert(0 < maxval && maxval <= PixMax);
 
+  // Aloca memória para a estrutura da imagem
   Image img = (Image)malloc(sizeof(struct image));
+
+  // Verifica falha na alocação de memória
   if (img == NULL) {
     errCause = "Memory allocation failed";
     return NULL;
   }
 
+  // Define as propriedades da imagem
   img->width = width;
   img->height = height;
   img->maxval = maxval;
+
+  // Aloca memória para os dados dos pixels
   img->pixel = (uint8 *)malloc(sizeof(uint8) * width * height);
+
+   // Verifica falha na alocação de memória
   if (img->pixel == NULL) {
-    free(img);
+    free(img); // Libera a estrutura da imagem previamente alocada
     errCause = "Memory allocation failed";
     return NULL;
   }
 
+  // Retorna um ponteiro para a imagem recém-criada
   return img;
 }
 
@@ -193,9 +202,9 @@ Image ImageCreate(int width, int height, uint8 maxval) { ///
 void ImageDestroy(Image *imgp) { ///
   assert(imgp != NULL);
   if (*imgp != NULL) {
-    free((*imgp)->pixel);
-    free(*imgp);
-    *imgp = NULL;
+    free((*imgp)->pixel); // Libera a memória dos dados dos pixels
+    free(*imgp); // Libera a memória da estrutura da imagem
+    *imgp = NULL; // Define o ponteiro para a imagem como NULL
   }
 }
 
@@ -409,7 +418,7 @@ void ImageNegative(Image img) { ///
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       uint8 currentPixel = ImageGetPixel(img, x, y);
-      uint8 invertedPixel = maxval - currentPixel;
+      uint8 invertedPixel = maxval - currentPixel; // Calcula o valor invertido (negativo) do pixel
       ImageSetPixel(img, x, y, invertedPixel);
     }
   }
@@ -452,8 +461,11 @@ void ImageBrighten(Image img, double factor) { ///
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       uint8 currentPixel = ImageGetPixel(img, x, y);
+
+      // Calcula o novo valor do pixel aplicando o fator
       int newPixel = (int)(currentPixel * factor + 0.5);
 
+      // Satura o novo valor para garantir que esteja dentro do intervalo [0, maxval]
       if (newPixel > maxval) {
         newPixel = maxval;
       }
@@ -461,6 +473,7 @@ void ImageBrighten(Image img, double factor) { ///
         newPixel = 0;
       }
 
+      // Define o novo valor do pixel na imagem
       ImageSetPixel(img, x, y, (uint8)newPixel);
     }
   }
@@ -730,7 +743,6 @@ void ImageBlur(Image img, int dx, int dy) { ///
       int sum = 0;
       int count = 0;
 
-      // Calcula a média dos pixels na vizinhança
       for (int j = y-dy; j <= dy+y; j++) {
         for (int i = x-dx; i <= dx+x; i++) {
           if (!ImageValidPos(img, i, j)){
