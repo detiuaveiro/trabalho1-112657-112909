@@ -707,19 +707,24 @@ int ImageLocateSubImage(Image img1, int *px, int *py, Image img2) { ///
   int width2 = img2->width;
   int height2 = img2->height;
 
+  int comparacoes = 0;
+
   for (int j = 0; j < height1 - height2 + 1; j++) {
     for (int i = 0; i < width1 - width2 + 1; i++) {
       // Tenta encontrar uma correspondência de subimagem em cada posição
+      comparacoes++;
       if (ImageMatchSubImage(img1, i, j, img2)) {
         // Correspondência encontrada, define as posições e retorna 1
         *px = i;
         *py = j;
+        printf("Número de comparações: %d\n", comparacoes);
         return 1;
       }
     }
   }
 
   // Nenhuma correspondência encontrada
+  printf("Número de comparações: %d\n", comparacoes);
   return 0;
 }
 
@@ -734,6 +739,8 @@ void ImageBlur(Image img, int dx, int dy) { ///
 
   int width = ImageWidth(img);
   int height = ImageHeight(img);
+  
+  int comparacoes = 0;
 
   // Imagem temporária para armazenar os pixels borrados
   Image tempImg = ImageCreate(width, height, ImageMaxval(img));
@@ -750,6 +757,7 @@ void ImageBlur(Image img, int dx, int dy) { ///
           }
 
           // Soma os valores dos pixels na vizinhança
+          comparacoes++;
           sum += ImageGetPixel(img, i, j);
           count++;
         }
@@ -769,5 +777,6 @@ void ImageBlur(Image img, int dx, int dy) { ///
   }
 
   // Libera a imagem temporária
+  printf("Número de comparações: %d\n", comparacoes);
   ImageDestroy(&tempImg);
 }
